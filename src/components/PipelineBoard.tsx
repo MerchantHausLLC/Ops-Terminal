@@ -1,19 +1,19 @@
 import { useState } from "react";
-import { Merchant, PipelineStage, PIPELINE_STAGES } from "@/types/merchant";
+import { Opportunity, OpportunityStage, PIPELINE_STAGES } from "@/types/opportunity";
 import PipelineColumn from "./PipelineColumn";
-import MerchantDetailModal from "./MerchantDetailModal";
+import OpportunityDetailModal from "./OpportunityDetailModal";
 
 interface PipelineBoardProps {
-  merchants: Merchant[];
-  onUpdateMerchant: (id: string, updates: Partial<Merchant>) => void;
+  opportunities: Opportunity[];
+  onUpdateOpportunity: (id: string, updates: Partial<Opportunity>) => void;
 }
 
-const PipelineBoard = ({ merchants, onUpdateMerchant }: PipelineBoardProps) => {
-  const [draggedMerchant, setDraggedMerchant] = useState<Merchant | null>(null);
-  const [selectedMerchant, setSelectedMerchant] = useState<Merchant | null>(null);
+const PipelineBoard = ({ opportunities, onUpdateOpportunity }: PipelineBoardProps) => {
+  const [draggedOpportunity, setDraggedOpportunity] = useState<Opportunity | null>(null);
+  const [selectedOpportunity, setSelectedOpportunity] = useState<Opportunity | null>(null);
 
-  const handleDragStart = (e: React.DragEvent, merchant: Merchant) => {
-    setDraggedMerchant(merchant);
+  const handleDragStart = (e: React.DragEvent, opportunity: Opportunity) => {
+    setDraggedOpportunity(opportunity);
     e.dataTransfer.effectAllowed = 'move';
   };
 
@@ -22,20 +22,16 @@ const PipelineBoard = ({ merchants, onUpdateMerchant }: PipelineBoardProps) => {
     e.dataTransfer.dropEffect = 'move';
   };
 
-  const handleDrop = (e: React.DragEvent, stage: PipelineStage) => {
+  const handleDrop = (e: React.DragEvent, stage: OpportunityStage) => {
     e.preventDefault();
-    if (draggedMerchant && draggedMerchant.stage !== stage) {
-      onUpdateMerchant(draggedMerchant.id, { stage });
+    if (draggedOpportunity && draggedOpportunity.stage !== stage) {
+      onUpdateOpportunity(draggedOpportunity.id, { stage });
     }
-    setDraggedMerchant(null);
+    setDraggedOpportunity(null);
   };
 
-  const getMerchantsByStage = (stage: PipelineStage) => {
-    return merchants.filter((m) => m.stage === stage);
-  };
-
-  const handleAssign = (merchantId: string, assignedTo: string) => {
-    onUpdateMerchant(merchantId, { assignedTo });
+  const getOpportunitiesByStage = (stage: OpportunityStage) => {
+    return opportunities.filter((o) => o.stage === stage);
   };
 
   return (
@@ -46,23 +42,22 @@ const PipelineBoard = ({ merchants, onUpdateMerchant }: PipelineBoardProps) => {
             <PipelineColumn
               key={stage}
               stage={stage}
-              merchants={getMerchantsByStage(stage)}
+              opportunities={getOpportunitiesByStage(stage)}
               onDragStart={handleDragStart}
               onDragOver={handleDragOver}
               onDrop={handleDrop}
-              onCardClick={setSelectedMerchant}
-              onAssign={handleAssign}
+              onCardClick={setSelectedOpportunity}
             />
           ))}
         </div>
       </div>
 
-      <MerchantDetailModal
-        merchant={selectedMerchant}
-        onClose={() => setSelectedMerchant(null)}
+      <OpportunityDetailModal
+        opportunity={selectedOpportunity}
+        onClose={() => setSelectedOpportunity(null)}
         onUpdate={(updates) => {
-          if (selectedMerchant) {
-            onUpdateMerchant(selectedMerchant.id, updates);
+          if (selectedOpportunity) {
+            onUpdateOpportunity(selectedOpportunity.id, updates);
           }
         }}
       />
