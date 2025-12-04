@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { Opportunity, OpportunityStage, STAGE_CONFIG } from "@/types/opportunity";
 import OpportunityCard from "./OpportunityCard";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { ChevronsDownUp, ChevronsUpDown } from "lucide-react";
 
 interface PipelineColumnProps {
   stage: OpportunityStage;
@@ -22,6 +25,29 @@ const PipelineColumn = ({
   onAssignmentChange,
 }: PipelineColumnProps) => {
   const config = STAGE_CONFIG[stage];
+  const [collapsedCards, setCollapsedCards] = useState<Set<string>>(new Set());
+  const [allCollapsed, setAllCollapsed] = useState(false);
+
+  const toggleCardCollapse = (id: string) => {
+    setCollapsedCards(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const toggleAllCards = () => {
+    if (allCollapsed) {
+      setCollapsedCards(new Set());
+    } else {
+      setCollapsedCards(new Set(opportunities.map(o => o.id)));
+    }
+    setAllCollapsed(!allCollapsed);
+  };
 
   return (
     <div
@@ -36,6 +62,21 @@ const PipelineColumn = ({
           <span className="ml-auto text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
             {opportunities.length}
           </span>
+          {opportunities.length > 0 && (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-6 w-6"
+              onClick={toggleAllCards}
+              title={allCollapsed ? "Expand all" : "Collapse all"}
+            >
+              {allCollapsed ? (
+                <ChevronsUpDown className="h-3.5 w-3.5" />
+              ) : (
+                <ChevronsDownUp className="h-3.5 w-3.5" />
+              )}
+            </Button>
+          )}
         </div>
       </div>
 
@@ -48,6 +89,8 @@ const PipelineColumn = ({
               onDragStart={onDragStart}
               onClick={() => onCardClick(opportunity)}
               onAssignmentChange={onAssignmentChange}
+              isCollapsed={collapsedCards.has(opportunity.id)}
+              onToggleCollapse={() => toggleCardCollapse(opportunity.id)}
             />
           ))}
           
