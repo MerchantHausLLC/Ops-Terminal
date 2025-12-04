@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import Navbar from "@/components/Navbar";
 import PipelineBoard from "@/components/PipelineBoard";
 import NewApplicationModal, { ApplicationFormData } from "@/components/NewApplicationModal";
+import { AppSidebar } from "@/components/AppSidebar";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { Opportunity, OpportunityStage } from "@/types/opportunity";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,7 +37,6 @@ const Index = () => {
       return;
     }
 
-    // Cast stage to OpportunityStage
     const typedData = (data || []).map(item => ({
       ...item,
       stage: item.stage as OpportunityStage,
@@ -48,7 +48,6 @@ const Index = () => {
 
   const handleNewApplication = async (formData: ApplicationFormData) => {
     try {
-      // 1. Create Account
       const { data: account, error: accountError } = await supabase
         .from('accounts')
         .insert({
@@ -66,7 +65,6 @@ const Index = () => {
 
       if (accountError) throw accountError;
 
-      // 2. Create Contact
       const { data: contact, error: contactError } = await supabase
         .from('contacts')
         .insert({
@@ -82,7 +80,6 @@ const Index = () => {
 
       if (contactError) throw contactError;
 
-      // 3. Create Opportunity
       const { data: opportunity, error: opportunityError } = await supabase
         .from('opportunities')
         .insert({
@@ -102,7 +99,6 @@ const Index = () => {
 
       if (opportunityError) throw opportunityError;
 
-      // Add the new opportunity with joined data
       const newOpportunity: Opportunity = {
         ...opportunity,
         stage: opportunity.stage as OpportunityStage,
@@ -157,20 +153,28 @@ const Index = () => {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-background overflow-hidden">
-      <Navbar onNewApplication={() => setIsModalOpen(true)} />
-      
-      <PipelineBoard 
-        opportunities={opportunities} 
-        onUpdateOpportunity={handleUpdateOpportunity} 
-      />
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-background">
+        <AppSidebar onNewApplication={() => setIsModalOpen(true)} />
+        <SidebarInset className="flex-1 flex flex-col overflow-hidden">
+          <header className="h-14 flex items-center px-6 border-b border-border">
+            <h1 className="text-lg font-semibold text-foreground">Pipeline</h1>
+          </header>
+          <main className="flex-1 overflow-hidden">
+            <PipelineBoard 
+              opportunities={opportunities} 
+              onUpdateOpportunity={handleUpdateOpportunity} 
+            />
+          </main>
+        </SidebarInset>
+      </div>
       
       <NewApplicationModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSubmit={handleNewApplication}
       />
-    </div>
+    </SidebarProvider>
   );
 };
 
