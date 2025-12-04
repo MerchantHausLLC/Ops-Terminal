@@ -52,6 +52,27 @@ export interface Opportunity {
   // Joined data
   account?: Account;
   contact?: Contact;
+
+  /** Related documents belonging to this opportunity */
+  documents?: Document[];
+  /** Related activities logged for this opportunity */
+  activities?: Activity[];
+}
+
+export interface Document {
+  id: string;
+  opportunity_id: string;
+  name: string;
+  url: string;
+  uploaded_at: string;
+}
+
+export interface Activity {
+  id: string;
+  opportunity_id: string;
+  type: string;
+  description: string | null;
+  created_at: string;
 }
 
 export const TEAM_MEMBERS = [
