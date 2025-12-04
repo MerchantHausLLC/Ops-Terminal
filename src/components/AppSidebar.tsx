@@ -7,7 +7,8 @@ import {
   Settings,
   Plus,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  BookOpen
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import {
@@ -32,6 +33,7 @@ const mainMenuItems = [
   { title: "Contacts", url: "/contacts", icon: Users },
   { title: "Documents", url: "/documents", icon: FileText },
   { title: "Reports", url: "/reports", icon: BarChart3 },
+  { title: "SOP", url: "/sop", icon: BookOpen },
 ];
 
 const bottomMenuItems = [
