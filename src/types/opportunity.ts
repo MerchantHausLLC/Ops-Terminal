@@ -1,0 +1,99 @@
+export type OpportunityStage = 
+  | 'application_started'
+  | 'document_collection'
+  | 'underwriting_review'
+  | 'processor_approval'
+  | 'integration_setup'
+  | 'gateway_submitted'
+  | 'live_activated'
+  | 'closed_won'
+  | 'closed_lost';
+
+export interface Account {
+  id: string;
+  name: string;
+  address1?: string;
+  address2?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  country?: string;
+  website?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Contact {
+  id: string;
+  account_id: string;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  phone?: string;
+  fax?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Opportunity {
+  id: string;
+  account_id: string;
+  contact_id: string;
+  stage: OpportunityStage;
+  referral_source?: string;
+  username?: string;
+  processing_services?: string[];
+  value_services?: string[];
+  agree_to_terms?: boolean;
+  timezone?: string;
+  language?: string;
+  created_at: string;
+  updated_at: string;
+  // Joined data
+  account?: Account;
+  contact?: Contact;
+}
+
+export const TEAM_MEMBERS = [
+  'Taryn',
+  'Darryn',
+  'Jamie',
+  'Yaseen',
+  'Wesley',
+  'Leo',
+] as const;
+
+export type TeamMember = typeof TEAM_MEMBERS[number];
+
+export const TEAM_MEMBER_COLORS: Record<string, string> = {
+  'Wesley': 'border-team-wesley',
+  'Leo': 'border-team-leo',
+  'Jamie': 'border-team-jamie',
+  'Darryn': 'border-team-darryn',
+  'Taryn': 'border-team-taryn',
+  'Yaseen': 'border-team-yaseen',
+};
+
+export const STAGE_CONFIG: Record<OpportunityStage, { label: string; colorClass: string }> = {
+  application_started: { label: 'Application Started', colorClass: 'bg-blue-500' },
+  document_collection: { label: 'Document Collection', colorClass: 'bg-indigo-500' },
+  underwriting_review: { label: 'Underwriting Review', colorClass: 'bg-purple-500' },
+  processor_approval: { label: 'Processor Approval', colorClass: 'bg-pink-500' },
+  integration_setup: { label: 'Integration Setup', colorClass: 'bg-orange-500' },
+  gateway_submitted: { label: 'Gateway Submitted', colorClass: 'bg-yellow-500' },
+  live_activated: { label: 'Live / Activated', colorClass: 'bg-green-500' },
+  closed_won: { label: 'Closed Won', colorClass: 'bg-emerald-600' },
+  closed_lost: { label: 'Closed Lost', colorClass: 'bg-destructive' },
+};
+
+export const PIPELINE_STAGES: OpportunityStage[] = [
+  'application_started',
+  'document_collection', 
+  'underwriting_review',
+  'processor_approval',
+  'integration_setup',
+  'gateway_submitted',
+  'live_activated',
+  'closed_won',
+  'closed_lost',
+];

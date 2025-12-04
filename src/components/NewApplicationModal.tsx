@@ -13,22 +13,26 @@ interface NewApplicationModalProps {
 }
 
 export interface ApplicationFormData {
+  // Account fields
   companyName: string;
   address: string;
   address2: string;
   city: string;
   state: string;
   zip: string;
+  country: string;
   website: string;
+  // Contact fields
   firstName: string;
   lastName: string;
   email: string;
   phone: string;
   fax: string;
+  // Opportunity fields
   username: string;
   processingServices: string[];
   valueServices: string;
-  country: string;
+  referralSource: string;
   timezone: string;
   language: string;
 }
@@ -48,6 +52,7 @@ const NewApplicationModal = ({ open, onClose, onSubmit }: NewApplicationModalPro
     city: '',
     state: '',
     zip: '',
+    country: '',
     website: '',
     firstName: '',
     lastName: '',
@@ -57,7 +62,7 @@ const NewApplicationModal = ({ open, onClose, onSubmit }: NewApplicationModalPro
     username: '',
     processingServices: [],
     valueServices: '',
-    country: '',
+    referralSource: '',
     timezone: '',
     language: '',
   });
@@ -72,6 +77,7 @@ const NewApplicationModal = ({ open, onClose, onSubmit }: NewApplicationModalPro
       city: '',
       state: '',
       zip: '',
+      country: '',
       website: '',
       firstName: '',
       lastName: '',
@@ -81,7 +87,7 @@ const NewApplicationModal = ({ open, onClose, onSubmit }: NewApplicationModalPro
       username: '',
       processingServices: [],
       valueServices: '',
-      country: '',
+      referralSource: '',
       timezone: '',
       language: '',
     });
@@ -106,9 +112,9 @@ const NewApplicationModal = ({ open, onClose, onSubmit }: NewApplicationModalPro
         
         <ScrollArea className="max-h-[70vh] pr-4">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Company Info */}
+            {/* Account Information */}
             <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Company Information</h3>
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Account Information</h3>
               
               <div className="space-y-2">
                 <Label htmlFor="companyName">Company Name *</Label>
@@ -193,7 +199,7 @@ const NewApplicationModal = ({ open, onClose, onSubmit }: NewApplicationModalPro
               </div>
             </div>
             
-            {/* Contact Info */}
+            {/* Contact Information */}
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Contact Information</h3>
               
@@ -245,18 +251,24 @@ const NewApplicationModal = ({ open, onClose, onSubmit }: NewApplicationModalPro
                 </div>
               </div>
               
+              <div className="space-y-2">
+                <Label htmlFor="fax">Fax</Label>
+                <Input
+                  id="fax"
+                  value={formData.fax}
+                  onChange={(e) => setFormData({ ...formData, fax: e.target.value })}
+                  placeholder="Optional"
+                />
+              </div>
+            </div>
+            
+            {/* Opportunity Details */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Opportunity Details</h3>
+              
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="fax">Fax</Label>
-                  <Input
-                    id="fax"
-                    value={formData.fax}
-                    onChange={(e) => setFormData({ ...formData, fax: e.target.value })}
-                    placeholder="Optional"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="username">Username</Label>
+                  <Label htmlFor="username">Portal Username</Label>
                   <Input
                     id="username"
                     value={formData.username}
@@ -264,26 +276,33 @@ const NewApplicationModal = ({ open, onClose, onSubmit }: NewApplicationModalPro
                     placeholder="recovathlete"
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="referralSource">Referral Source</Label>
+                  <Input
+                    id="referralSource"
+                    value={formData.referralSource}
+                    onChange={(e) => setFormData({ ...formData, referralSource: e.target.value })}
+                    placeholder="Partner, Website, etc."
+                  />
+                </div>
               </div>
-            </div>
-            
-            {/* Services */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Processing Services</h3>
               
-              <div className="grid grid-cols-2 gap-3">
-                {PROCESSING_SERVICES.map((service) => (
-                  <div key={service} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={service}
-                      checked={formData.processingServices.includes(service)}
-                      onCheckedChange={() => toggleProcessingService(service)}
-                    />
-                    <Label htmlFor={service} className="text-sm font-normal cursor-pointer">
-                      {service}
-                    </Label>
-                  </div>
-                ))}
+              <div className="space-y-2">
+                <Label>Processing Services</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  {PROCESSING_SERVICES.map((service) => (
+                    <div key={service} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={service}
+                        checked={formData.processingServices.includes(service)}
+                        onCheckedChange={() => toggleProcessingService(service)}
+                      />
+                      <Label htmlFor={service} className="text-sm font-normal cursor-pointer">
+                        {service}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
               </div>
               
               <div className="space-y-2">
@@ -295,11 +314,6 @@ const NewApplicationModal = ({ open, onClose, onSubmit }: NewApplicationModalPro
                   placeholder="Additional services..."
                 />
               </div>
-            </div>
-            
-            {/* Preferences */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Preferences</h3>
               
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">

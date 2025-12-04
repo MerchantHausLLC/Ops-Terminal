@@ -14,6 +14,92 @@ export type Database = {
   }
   public: {
     Tables: {
+      accounts: {
+        Row: {
+          address1: string | null
+          address2: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          id: string
+          name: string
+          state: string | null
+          updated_at: string
+          website: string | null
+          zip: string | null
+        }
+        Insert: {
+          address1?: string | null
+          address2?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          state?: string | null
+          updated_at?: string
+          website?: string | null
+          zip?: string | null
+        }
+        Update: {
+          address1?: string | null
+          address2?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          state?: string | null
+          updated_at?: string
+          website?: string | null
+          zip?: string | null
+        }
+        Relationships: []
+      }
+      contacts: {
+        Row: {
+          account_id: string
+          created_at: string
+          email: string | null
+          fax: string | null
+          first_name: string | null
+          id: string
+          last_name: string | null
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          email?: string | null
+          fax?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          email?: string | null
+          fax?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contacts_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       merchants: {
         Row: {
           address: string | null
@@ -157,6 +243,69 @@ export type Database = {
           zip?: string | null
         }
         Relationships: []
+      }
+      opportunities: {
+        Row: {
+          account_id: string
+          agree_to_terms: boolean | null
+          contact_id: string
+          created_at: string
+          id: string
+          language: string | null
+          processing_services: string[] | null
+          referral_source: string | null
+          stage: string
+          timezone: string | null
+          updated_at: string
+          username: string | null
+          value_services: string[] | null
+        }
+        Insert: {
+          account_id: string
+          agree_to_terms?: boolean | null
+          contact_id: string
+          created_at?: string
+          id?: string
+          language?: string | null
+          processing_services?: string[] | null
+          referral_source?: string | null
+          stage?: string
+          timezone?: string | null
+          updated_at?: string
+          username?: string | null
+          value_services?: string[] | null
+        }
+        Update: {
+          account_id?: string
+          agree_to_terms?: boolean | null
+          contact_id?: string
+          created_at?: string
+          id?: string
+          language?: string | null
+          processing_services?: string[] | null
+          referral_source?: string | null
+          stage?: string
+          timezone?: string | null
+          updated_at?: string
+          username?: string | null
+          value_services?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunities_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "opportunities_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
