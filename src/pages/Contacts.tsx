@@ -52,6 +52,8 @@ const Contacts = () => {
   const [loading, setLoading] = useState(true);
   const [editingContact, setEditingContact] = useState<ContactWithAccount | null>(null);
   const [isNewDialogOpen, setIsNewDialogOpen] = useState(false);
+  const [isNewAccount, setIsNewAccount] = useState(false);
+  const [newAccountName, setNewAccountName] = useState('');
   const [formData, setFormData] = useState({
     first_name: '',
     last_name: '',
@@ -117,6 +119,8 @@ const Contacts = () => {
       assigned_to: '',
       account_id: '',
     });
+    setIsNewAccount(false);
+    setNewAccountName('');
     setIsNewDialogOpen(true);
   };
 
@@ -157,7 +161,27 @@ const Contacts = () => {
   };
 
   const handleCreateContact = async () => {
-    if (!formData.account_id) {
+    let accountId = formData.account_id;
+
+    // Create new account if needed
+    if (isNewAccount) {
+      if (!newAccountName.trim()) {
+        toast.error('Please enter a company name');
+        return;
+      }
+      const { data: newAccount, error: accountError } = await supabase
+        .from('accounts')
+        .insert({ name: newAccountName.trim() })
+        .select()
+        .single();
+
+      if (accountError || !newAccount) {
+        toast.error('Failed to create account');
+        return;
+      }
+      accountId = newAccount.id;
+      fetchAccounts(); // Refresh accounts list
+    } else if (!accountId) {
       toast.error('Please select an account');
       return;
     }
@@ -170,7 +194,7 @@ const Contacts = () => {
     const { error } = await supabase
       .from('contacts')
       .insert({
-        account_id: formData.account_id,
+        account_id: accountId,
         first_name: formData.first_name || null,
         last_name: formData.last_name || null,
         email: formData.email || null,
@@ -340,22 +364,45 @@ const Contacts = () => {
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Account *</Label>
-              <Select
-                value={formData.account_id}
-                onValueChange={(value) => setFormData({ ...formData, account_id: value })}
-              >
-                <SelectTrigger className="bg-secondary">
-                  <SelectValue placeholder="Select account" />
-                </SelectTrigger>
-                <SelectContent className="bg-popover">
-                  {accounts.map((account) => (
-                    <SelectItem key={account.id} value={account.id}>
-                      {account.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex items-center justify-between">
+                <Label>Account *</Label>
+                <Button
+                  type="button"
+                  variant="link"
+                  size="sm"
+                  className="h-auto p-0 text-xs"
+                  onClick={() => {
+                    setIsNewAccount(!isNewAccount);
+                    setNewAccountName('');
+                    setFormData({ ...formData, account_id: '' });
+                  }}
+                >
+                  {isNewAccount ? 'Select existing' : '+ New account'}
+                </Button>
+              </div>
+              {isNewAccount ? (
+                <Input
+                  placeholder="Enter company name"
+                  value={newAccountName}
+                  onChange={(e) => setNewAccountName(e.target.value)}
+                />
+              ) : (
+                <Select
+                  value={formData.account_id}
+                  onValueChange={(value) => setFormData({ ...formData, account_id: value })}
+                >
+                  <SelectTrigger className="bg-secondary">
+                    <SelectValue placeholder="Select account" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover">
+                    {accounts.map((account) => (
+                      <SelectItem key={account.id} value={account.id}>
+                        {account.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
