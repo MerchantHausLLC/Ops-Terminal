@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
-import logoIcon from '@/assets/logo-icon.png';
+import brandLogo from '@/assets/brand-logo.png';
 
 const emailSchema = z.string().email('Please enter a valid email address');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
@@ -113,7 +113,7 @@ const Auth = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <img src={logoIcon} alt="MerchantFlow" className="h-12 w-12 rounded-lg" />
+            <img src={brandLogo} alt="MerchantFlow" className="h-12 w-12 rounded-lg" />
           </div>
           <CardTitle className="text-2xl gradient-text">MerchantFlow</CardTitle>
           <CardDescription>Sign in to access your pipeline</CardDescription>
