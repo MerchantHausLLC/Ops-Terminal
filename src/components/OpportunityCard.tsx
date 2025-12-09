@@ -45,13 +45,16 @@ const OpportunityCard = ({
     : 'border-l-muted-foreground/30';
 
   // SLA status: tiered alerts at 12h (warning) and 24h (critical)
-  const slaStatus = useMemo(() => {
+  const slaStatus = useMemo((): 'none' | 'warning' | 'critical' => {
     if (!opportunity.stage_entered_at) return 'none';
-    const hoursInStage = differenceInHours(new Date(), new Date(opportunity.stage_entered_at));
+    const stageEnteredDate = new Date(opportunity.stage_entered_at);
+    const now = new Date();
+    const hoursInStage = differenceInHours(now, stageEnteredDate);
+    console.log(`SLA Check: ${account?.name} - ${hoursInStage}h in stage (entered: ${opportunity.stage_entered_at})`);
     if (hoursInStage >= 24) return 'critical';
     if (hoursInStage >= 12) return 'warning';
     return 'none';
-  }, [opportunity.stage_entered_at]) as 'none' | 'warning' | 'critical';
+  }, [opportunity.stage_entered_at, account?.name]);
 
   const handleAssignmentChange = async (value: string) => {
     const newValue = value === 'unassigned' ? null : value;
