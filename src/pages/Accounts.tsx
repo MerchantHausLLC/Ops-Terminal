@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Account } from "@/types/opportunity";
+import { Account, Contact } from "@/types/opportunity";
 import { AppSidebar } from "@/components/AppSidebar";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
@@ -8,13 +8,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Pencil, Search } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Pencil, Search, Users } from "lucide-react";
 import { toast } from "sonner";
 
+interface AccountWithContacts extends Account {
+  contacts?: Contact[];
+}
+
 const Accounts = () => {
-  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [accounts, setAccounts] = useState<AccountWithContacts[]>([]);
   const [loading, setLoading] = useState(true);
-  const [editingAccount, setEditingAccount] = useState<Account | null>(null);
+  const [editingAccount, setEditingAccount] = useState<AccountWithContacts | null>(null);
+  const [selectedContactId, setSelectedContactId] = useState<string>('');
   const [formData, setFormData] = useState({
     name: '',
     address1: '',
@@ -35,16 +41,17 @@ const Accounts = () => {
   const fetchAccounts = async () => {
     const { data, error } = await supabase
       .from('accounts')
-      .select('*')
+      .select('*, contacts(*)')
       .order('created_at', { ascending: false });
     if (!error && data) {
-      setAccounts(data as Account[]);
+      setAccounts(data as AccountWithContacts[]);
     }
     setLoading(false);
   };
 
-  const openEditDialog = (account: Account) => {
+  const openEditDialog = (account: AccountWithContacts) => {
     setEditingAccount(account);
+    setSelectedContactId('');
     setFormData({
       name: account.name || '',
       address1: account.address1 || '',
@@ -133,6 +140,7 @@ const Accounts = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
+                  <TableHead>Contacts</TableHead>
                   <TableHead>City</TableHead>
                   <TableHead>State</TableHead>
                   <TableHead>Country</TableHead>
@@ -144,6 +152,35 @@ const Accounts = () => {
                 {filteredAccounts.map((account) => (
                   <TableRow key={account.id} className="hover:bg-muted/50">
                     <TableCell className="font-medium">{account.name}</TableCell>
+                    <TableCell>
+                      {account.contacts && account.contacts.length > 0 ? (
+                        <Select
+                          value="placeholder"
+                          onValueChange={() => {}}
+                        >
+                          <SelectTrigger className="w-48 bg-secondary">
+                            <div className="flex items-center gap-2">
+                              <Users className="h-4 w-4 text-muted-foreground" />
+                              <span>{account.contacts.length} contact{account.contacts.length !== 1 ? 's' : ''}</span>
+                            </div>
+                          </SelectTrigger>
+                          <SelectContent className="bg-popover">
+                            {account.contacts.map((contact) => (
+                              <SelectItem key={contact.id} value={contact.id} disabled>
+                                <div className="flex flex-col">
+                                  <span>{contact.first_name} {contact.last_name}</span>
+                                  {contact.email && (
+                                    <span className="text-xs text-muted-foreground">{contact.email}</span>
+                                  )}
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      ) : (
+                        <span className="text-muted-foreground">No contacts</span>
+                      )}
+                    </TableCell>
                     <TableCell>{account.city || '-'}</TableCell>
                     <TableCell>{account.state || '-'}</TableCell>
                     <TableCell>{account.country || '-'}</TableCell>
