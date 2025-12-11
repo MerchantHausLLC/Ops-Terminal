@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Pencil, Plus, Search } from "lucide-react";
+import { Pencil, Plus, Search, ArrowRightCircle } from "lucide-react";
 import { toast } from "sonner";
 
 interface ContactWithAccount extends Contact {
@@ -238,6 +238,35 @@ const Contacts = () => {
     }
   };
 
+  const handleConvertToOpportunity = async (contact: ContactWithAccount) => {
+    if (!contact.account_id) {
+      toast.error('Contact must have an account to convert to opportunity');
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('opportunities')
+        .insert({
+          account_id: contact.account_id,
+          contact_id: contact.id,
+          stage: 'application_started',
+          status: 'active',
+        });
+
+      if (error) {
+        toast.error('Failed to create opportunity');
+        return;
+      }
+
+      toast.success('Contact converted to opportunity');
+      fetchContacts();
+    } catch (err) {
+      console.error(err);
+      toast.error('An unexpected error occurred');
+    }
+  };
+
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center">
@@ -295,13 +324,25 @@ const Contacts = () => {
                     <TableCell>{contact.assigned_to || '-'}</TableCell>
                     <TableCell>{contact.stage ? STAGE_LABELS[contact.stage] || contact.stage : '-'}</TableCell>
                     <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => openEditDialog(contact)}
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => openEditDialog(contact)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        {!contact.opportunity_id && contact.account_id && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleConvertToOpportunity(contact)}
+                            title="Convert to Opportunity"
+                          >
+                            <ArrowRightCircle className="h-4 w-4 text-primary" />
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -385,14 +426,14 @@ const Contacts = () => {
             <div className="space-y-2">
               <Label>Assigned To</Label>
               <Select
-                value={formData.assigned_to}
-                onValueChange={(value) => setFormData({ ...formData, assigned_to: value })}
+                value={formData.assigned_to || "unassigned"}
+                onValueChange={(value) => setFormData({ ...formData, assigned_to: value === "unassigned" ? "" : value })}
               >
                 <SelectTrigger className="bg-secondary">
                   <SelectValue placeholder="Select team member" />
                 </SelectTrigger>
                 <SelectContent className="bg-popover">
-                  <SelectItem value="">Unassigned</SelectItem>
+                  <SelectItem value="unassigned">Unassigned</SelectItem>
                   {TEAM_MEMBERS.map((member) => (
                     <SelectItem key={member} value={member}>
                       {member}
